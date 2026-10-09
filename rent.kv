@@ -1,0 +1,290 @@
+#:kivy 2.3
+#:import dp kivy.metrics.dp
+
+# ===== 全局规则：中文字体（Kivy 默认 Roboto 显示中文是方块） =====
+<Label>:
+    font_name: 'NotoSansSC'
+
+<TextInput>:
+    font_name: 'NotoSansSC'
+    font_size: dp(15)
+    multiline: False
+    size_hint_y: None
+    height: dp(44)
+    padding: [dp(10), (self.height - self.line_height) / 2, dp(10), 0]
+
+<Button>:
+    font_name: 'NotoSansSC'
+    font_size: dp(15)
+
+# ===== 表单字段（标签 + 输入框） =====
+<Field@BoxLayout>:
+    label: ''
+    hint: ''
+    num: False
+    orientation: 'vertical'
+    size_hint_y: None
+    height: dp(86)
+    spacing: dp(2)
+    Label:
+        text: root.label
+        font_size: dp(14)
+        color: 0.35, 0.35, 0.35, 1
+        size_hint_y: None
+        height: dp(22)
+        text_size: self.width, None
+        halign: 'left'
+    TextInput:
+        id: ti
+        hint_text: root.hint
+        input_filter: 'float' if root.num else None
+
+# ===== 主菜单 =====
+<MenuScreen>:
+    name: 'menu'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(28)
+        spacing: dp(12)
+        Label:
+            text: '房屋收租管理系统'
+            font_size: dp(26)
+            bold: True
+            color: 0.15, 0.45, 0.8, 1
+            size_hint_y: None
+            height: dp(90)
+        Button:
+            text: '添加租客'
+            on_press: app.root.current = 'add_tenant'
+        Button:
+            text: '查看所有租客'
+            on_press: app.refresh_tenant_list(); app.root.current = 'tenant_list'
+        Button:
+            text: '录入租金缴费'
+            on_press: app.refresh_pay(); app.root.current = 'pay_rent'
+        Button:
+            text: '查询缴费记录'
+            on_press: app.refresh_query(); app.root.current = 'query'
+        Button:
+            text: '退出系统'
+            background_color: 0.5, 0.5, 0.5, 1
+            on_press: app.stop()
+        Widget:
+
+# ===== 添加租客 =====
+<AddTenantScreen>:
+    name: 'add_tenant'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(16)
+        spacing: dp(10)
+        Label:
+            text: '==== 添加租客 ===='
+            font_size: dp(20)
+            color: 0.15, 0.45, 0.8, 1
+            size_hint_y: None
+            height: dp(40)
+        ScrollView:
+            GridLayout:
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(4)
+                Field:
+                    id: name_f
+                    label: '租客姓名'
+                Field:
+                    id: idno_f
+                    label: '身份证号码'
+                Field:
+                    id: phone_f
+                    label: '联系电话'
+                Field:
+                    id: addr_f
+                    label: '房屋地址'
+                Field:
+                    id: rent_f
+                    label: '每月租金（元）'
+                    hint: '例：1500'
+                    num: True
+                Field:
+                    id: term_f
+                    label: '租期'
+                    hint: '例：2026-01-01 至 2027-01-01'
+        BoxLayout:
+            size_hint_y: None
+            height: dp(52)
+            spacing: dp(10)
+            Button:
+                text: '保存'
+                background_color: 0.2, 0.65, 0.3, 1
+                on_press: app.save_add_tenant()
+            Button:
+                text: '返回'
+                on_press: root.manager.current = 'menu'
+
+# ===== 租客列表 =====
+<TenantListScreen>:
+    name: 'tenant_list'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(16)
+        spacing: dp(10)
+        Label:
+            text: '==== 租客列表 ===='
+            font_size: dp(20)
+            color: 0.15, 0.45, 0.8, 1
+            size_hint_y: None
+            height: dp(40)
+        ScrollView:
+            bar_width: dp(4)
+            scroll_type: ['bars', 'content']
+            GridLayout:
+                id: list_box
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(6)
+        Button:
+            text: '返回主菜单'
+            size_hint_y: None
+            height: dp(48)
+            on_press: root.manager.current = 'menu'
+
+# ===== 修改租客 =====
+<EditTenantScreen>:
+    name: 'edit_tenant'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(16)
+        spacing: dp(10)
+        Label:
+            text: '==== 修改租客信息 ===='
+            font_size: dp(20)
+            color: 0.15, 0.45, 0.8, 1
+            size_hint_y: None
+            height: dp(40)
+        ScrollView:
+            GridLayout:
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(4)
+                Field:
+                    id: name_f
+                    label: '租客姓名'
+                Field:
+                    id: idno_f
+                    label: '身份证号码'
+                Field:
+                    id: phone_f
+                    label: '联系电话'
+                Field:
+                    id: addr_f
+                    label: '房屋地址'
+                Field:
+                    id: rent_f
+                    label: '每月租金（元）'
+                    num: True
+                Field:
+                    id: term_f
+                    label: '租期'
+        BoxLayout:
+            size_hint_y: None
+            height: dp(52)
+            spacing: dp(10)
+            Button:
+                text: '保存'
+                background_color: 0.2, 0.65, 0.3, 1
+                on_press: app.save_edit_tenant()
+            Button:
+                text: '返回'
+                on_press: root.manager.current = 'tenant_list'
+
+# ===== 录入缴费 =====
+<PayRentScreen>:
+    name: 'pay_rent'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(16)
+        spacing: dp(12)
+        Label:
+            text: '==== 录入租金缴费 ===='
+            font_size: dp(20)
+            color: 0.15, 0.45, 0.8, 1
+            size_hint_y: None
+            height: dp(40)
+        Spinner:
+            id: tenant_sp
+            size_hint_y: None
+            height: dp(48)
+            on_text: app.on_pay_tenant_selected(self.text)
+        Field:
+            id: date_f
+            label: '缴费日期'
+            hint: '留空默认今天，例：2026-10-09'
+        Field:
+            id: amount_f
+            label: '缴费金额（元）'
+            num: True
+        BoxLayout:
+            size_hint_y: None
+            height: dp(52)
+            spacing: dp(10)
+            Button:
+                text: '保存'
+                background_color: 0.2, 0.65, 0.3, 1
+                on_press: app.save_pay()
+            Button:
+                text: '返回'
+                on_press: root.manager.current = 'menu'
+
+# ===== 查询缴费 =====
+<QueryScreen>:
+    name: 'query'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(16)
+        spacing: dp(10)
+        Label:
+            text: '==== 缴费记录查询 ===='
+            font_size: dp(20)
+            color: 0.15, 0.45, 0.8, 1
+            size_hint_y: None
+            height: dp(40)
+        Spinner:
+            id: tenant_sp
+            size_hint_y: None
+            height: dp(48)
+            text: '全部'
+            on_text: app.refresh_query()
+        ScrollView:
+            bar_width: dp(4)
+            scroll_type: ['bars', 'content']
+            GridLayout:
+                id: list_box
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(4)
+        Label:
+            id: total_lb
+            text: '累计已收租金：0元'
+            bold: True
+            color: 0.8, 0.5, 0.1, 1
+            size_hint_y: None
+            height: dp(44)
+        Button:
+            text: '返回主菜单'
+            size_hint_y: None
+            height: dp(48)
+            on_press: root.manager.current = 'menu'
+
+# ===== 屏幕管理 =====
+ScreenManager:
+    MenuScreen:
+    AddTenantScreen:
+    TenantListScreen:
+    EditTenantScreen:
+    PayRentScreen:
+    QueryScreen:
